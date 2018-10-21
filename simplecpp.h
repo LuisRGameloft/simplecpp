@@ -197,6 +197,7 @@ namespace simplecpp {
         void dump() const;
         std::string stringify() const;
 
+        void writefile(const std::string &filename = std::string());
         void readfile(std::istream &istr, const std::string &filename=std::string(), OutputList *outputList = 0);
         void constFold();
 

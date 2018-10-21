@@ -388,6 +388,37 @@ static bool isRawStringId(const std::string &str)
     return str == "R" || str == "uR" || str == "UR" || str == "LR" || str == "u8R";
 }
 
+void simplecpp::TokenList::writefile(const std::string &filename)
+{
+    std::ofstream ret(filename.c_str(), std::ofstream::out | std::ofstream::trunc);
+
+    if (!ret.is_open()) {
+        std::cout << "Couldn't open file " << filename.c_str() << std::endl;
+        return;
+    }
+
+    Location loc(files);
+    for (const Token *tok = cfront(); tok; tok = tok->next) {
+        if (tok->location.line < loc.line || tok->location.fileIndex != loc.fileIndex) {
+            ret << "\n#line " << tok->location.line << " \"" << tok->location.file() << "\"\n";
+            loc = tok->location;
+        }
+
+        while (tok->location.line > loc.line) {
+            ret << '\n';
+            loc.line++;
+        }
+
+        if (sameline(tok->previous, tok))
+            ret << ' ';
+
+        ret << tok->str();
+
+        loc.adjust(tok->str());
+    }
+    ret.close();
+}
+
 void simplecpp::TokenList::readfile(std::istream &istr, const std::string &filename, OutputList *outputList)
 {
     std::stack<simplecpp::Location> loc;

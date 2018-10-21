@@ -11,7 +11,8 @@ bool simplecpp::gKeepDefinitions = false;
 
 int main(int argc, char **argv)
 {
-    const char *filename = NULL;
+    const char *filenameinput = NULL;
+    const char *filenameoutput = NULL;
 	
     // Settings..
     simplecpp::DUI dui;
@@ -58,13 +59,16 @@ int main(int argc, char **argv)
                 break;
 	        };
         } else {
-            filename = arg;
+            if(!filenameinput)
+                filenameinput = arg;
+            else 
+                filenameoutput = arg;
         }
     }
 
-    if (!filename) {
+    if (!filenameinput) {
         std::cout << "Syntax:" << std::endl;
-        std::cout << "simplecpp [options] filename" << std::endl;
+        std::cout << "simplecpp [options] filenameIn filenameOut" << std::endl;
         std::cout << "  -DNAME          Define NAME." << std::endl;
         std::cout << "  -IPATH          Include path." << std::endl;
         std::cout << "  -include=FILE   Include FILE." << std::endl;
@@ -75,8 +79,8 @@ int main(int argc, char **argv)
     // Perform preprocessing
     simplecpp::OutputList outputList;
     std::vector<std::string> files;
-    std::ifstream f(filename);
-    simplecpp::TokenList rawtokens(f,files,filename,&outputList);
+    std::ifstream f(filenameinput);
+    simplecpp::TokenList rawtokens(f,files, filenameinput,&outputList);
     rawtokens.removeComments();
     std::map<std::string, simplecpp::TokenList*> included = simplecpp::load(rawtokens, files, dui, &outputList);
     for (std::pair<std::string, simplecpp::TokenList *> i : included)
@@ -85,7 +89,11 @@ int main(int argc, char **argv)
     simplecpp::preprocess(outputTokens, rawtokens, files, included, dui, &outputList);
 
     // Output
-    std::cout << outputTokens.stringify() << std::endl;
+    if(!filenameoutput)
+        std::cout << outputTokens.stringify() << std::endl;
+    else {
+        outputTokens.writefile(filenameoutput);
+    }
     for (const simplecpp::Output &output : outputList) {
         std::cerr << output.location.file() << ':' << output.location.line << ": ";
         switch (output.type) {
