@@ -7,6 +7,7 @@
 
 // Init options 
 bool simplecpp::gKeepComments = false;
+bool simplecpp::gKeepDefinitions = false;
 
 int main(int argc, char **argv)
 {
@@ -18,13 +19,23 @@ int main(int argc, char **argv)
         const char *arg = argv[i];
         if (*arg == '-') {
             char c = arg[1];
-            if (c != 'D' && c != 'U' && c != 'I' && c != 'i' && c != 'C')
+            if (c != 'D' && c != 'U' && c != 'I' && c != 'i' && c != 'C' && c != 'd')
                 continue;  // Ignored
 
             // Commands (without paramaters)
             switch (c) {
             case 'C': // define symbol
                 simplecpp::gKeepComments = true;
+                continue;
+                break;
+            case 'd': // Check subsoption
+                char suboption = arg[2];
+                switch (suboption) {
+                case 'D' :
+                    simplecpp::gKeepDefinitions = true;
+                    continue;
+                    break;
+                };
                 continue;
                 break;
             };
