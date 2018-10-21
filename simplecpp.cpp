@@ -409,8 +409,10 @@ void simplecpp::TokenList::writefile(const std::string &filename)
             loc.line++;
         }
 
-        if (sameline(tok->previous, tok))
-            ret << ' ';
+        if (!gKeepDefinitions || tok->str() != DEFINE) {
+            if (sameline(tok->previous, tok))
+               ret << ' ';
+        }
 
         ret << tok->str();
 
@@ -2604,8 +2606,12 @@ void simplecpp::preprocess(simplecpp::TokenList &output, const simplecpp::TokenL
             } else if (ifstates.top() == TRUE && rawtok->str() == PRAGMA && rawtok->next && rawtok->next->str() == ONCE && sameline(rawtok,rawtok->next)) {
                 pragmaOnce.insert(rawtok->location.file());
             }
-            rawtok = gotoNextLine(rawtok);
-            continue;
+
+            if (!gKeepDefinitions || rawtok->str() != DEFINE)
+            {
+                rawtok = gotoNextLine(rawtok);
+                continue;
+            }
         }
 
         if (ifstates.top() != TRUE) {
@@ -2628,9 +2634,27 @@ void simplecpp::preprocess(simplecpp::TokenList &output, const simplecpp::TokenL
         const Location loc(rawtok->location);
         TokenList tokens(files);
 
-        if (!preprocessToken(tokens, &rawtok, macros, files, outputList)) {
-            output.clear();
-            return;
+        if (gKeepDefinitions && rawtok->str() == DEFINE) {
+            // Keep all original definition
+            // First get previusly token
+            if (rawtok->previous) {
+                tokens.push_back(new simplecpp::Token(*rawtok->previous));
+                // Get rest token of lines
+                const unsigned int line = rawtok->location.line;
+                const unsigned int file = rawtok->location.fileIndex;
+                const simplecpp::Token* tok = rawtok;
+                while (tok && tok->location.line == line && tok->location.fileIndex == file) {
+                    tokens.push_back(new simplecpp::Token(*tok));
+                    tok = tok->next;
+                }
+                rawtok = tok;
+            }
+        }
+        else {
+            if (!preprocessToken(tokens, &rawtok, macros, files, outputList)) {
+                output.clear();
+                return;
+            }
         }
 
         if (hash || hashhash) {
