@@ -1033,7 +1033,7 @@ void simplecpp::TokenList::removeComments()
     while (tok) {
         Token *tok1 = tok;
         tok = tok->next;
-        if (tok1->comment)
+        if (tok1->comment && !gKeepComments)
             deleteToken(tok1);
     }
 }
@@ -1084,7 +1084,7 @@ std::string simplecpp::TokenList::lastLine(int maxsize) const
     std::string ret;
     int count = 0;
     for (const Token *tok = cback(); sameline(tok,cback()); tok = tok->previous) {
-        if (tok->comment)
+        if (tok->comment && !gKeepComments)
             continue;
         if (!ret.empty())
             ret = ' ' + ret;
@@ -2252,6 +2252,8 @@ static bool preprocessToken(simplecpp::TokenList &output, const simplecpp::Token
         output.takeTokens(value);
     } else {
         if (!tok->comment)
+            output.push_back(new simplecpp::Token(*tok));
+        else if(simplecpp::gKeepComments)
             output.push_back(new simplecpp::Token(*tok));
         *tok1 = tok->next;
     }

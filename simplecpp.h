@@ -43,6 +43,9 @@
 
 namespace simplecpp {
 
+	// Setup options
+	extern bool gKeepComments;
+
     typedef std::string TokenString;
 
     /**

@@ -5,18 +5,31 @@
 #include <iostream>
 #include <cstring>
 
+// Init options 
+bool simplecpp::gKeepComments = false;
+
 int main(int argc, char **argv)
 {
     const char *filename = NULL;
-
+	
     // Settings..
     simplecpp::DUI dui;
     for (int i = 1; i < argc; i++) {
         const char *arg = argv[i];
         if (*arg == '-') {
             char c = arg[1];
-            if (c != 'D' && c != 'U' && c != 'I' && c != 'i')
+            if (c != 'D' && c != 'U' && c != 'I' && c != 'i' && c != 'C')
                 continue;  // Ignored
+
+            // Commands (without paramaters)
+            switch (c) {
+            case 'C': // define symbol
+                simplecpp::gKeepComments = true;
+                continue;
+                break;
+            };
+
+            // Commands (with parameters)
             const char *value = arg[2] ? (argv[i] + 2) : argv[++i];
             switch (c) {
             case 'D': // define symbol
@@ -32,7 +45,7 @@ int main(int argc, char **argv)
                 if (std::strncmp(arg, "-include=",9)==0)
                     dui.includes.push_back(arg+9);
                 break;
-            };
+	        };
         } else {
             filename = arg;
         }
