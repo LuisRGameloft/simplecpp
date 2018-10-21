@@ -409,8 +409,7 @@ void simplecpp::TokenList::writefile(const std::string &filename)
             loc.line++;
         }
 
-        if (!gKeepDefinitions || tok->str() != DEFINE) {
-            if (sameline(tok->previous, tok))
+        if (sameline(tok->previous, tok) && (!gKeepDefinitions || tok->str() != DEFINE)) {
                ret << ' ';
         }
 
@@ -2640,9 +2639,9 @@ void simplecpp::preprocess(simplecpp::TokenList &output, const simplecpp::TokenL
             if (rawtok->previous) {
                 tokens.push_back(new simplecpp::Token(*rawtok->previous));
                 // Get rest token of lines
-                const unsigned int line = rawtok->location.line;
-                const unsigned int file = rawtok->location.fileIndex;
                 const simplecpp::Token* tok = rawtok;
+                const unsigned int line = tok->location.line;
+                const unsigned int file = tok->location.fileIndex;
                 while (tok && tok->location.line == line && tok->location.fileIndex == file) {
                     tokens.push_back(new simplecpp::Token(*tok));
                     tok = tok->next;
