@@ -138,8 +138,8 @@
     </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="F:\projects\github\simplecpp\simplecpp.cpp" />
-    <ClCompile Include="F:\projects\github\simplecpp\main.cpp" />
+    <ClCompile Include="simplecpp.cpp" />
+    <ClCompile Include="main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
